@@ -1,5 +1,7 @@
 *dist*
 storybook-static/
+screenshots/
+argos/test-results/
 custom-elements.json
 .env-local
 .aws

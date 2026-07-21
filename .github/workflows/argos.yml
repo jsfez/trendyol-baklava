@@ -1,0 +1,52 @@
+name: Argos
+
+on:
+  push:
+    branches:
+      - next
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  # Argos authenticates through GitHub's OIDC provider, so this workflow needs
+  # no token of its own.
+  id-token: write
+
+jobs:
+  argos:
+    name: Visual tests
+    # Pinned to jammy: the Playwright version in this lockfile installs
+    # `libasound2`, which noble renamed, and `--with-deps` fails on 24.04.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.10.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Same two commands the Chromatic job runs, so both tools capture the
+      # same Storybook build.
+      - name: Build
+        run: npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Take screenshots
+        run: npx playwright test -c argos/playwright.config.ts
