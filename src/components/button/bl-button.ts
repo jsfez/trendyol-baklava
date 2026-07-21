@@ -197,8 +197,8 @@ export default class BlButton extends LitElement {
       ?disabled="${isDisabled}"
       size="${this.size}"
     ></bl-spinner>`;
-    const slots = html`<slot name="icon">${this.loading ? loadingIcon : icon}</slot>
-      <span class="label">${label}</span>`;
+    const slots = html`<span class="label">${label}</span>
+      <slot name="icon">${this.loading ? loadingIcon : icon}</slot>`;
     const caret = this.dropdown ? this.caretTemplate() : "";
     const classes = classMap({
       "button": true,
